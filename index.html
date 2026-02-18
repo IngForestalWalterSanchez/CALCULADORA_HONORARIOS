@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Honorarios Profesionales - Banco de Corrientes</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #004d40 0%, #00695c 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        /* Estilos del Login */
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            max-width: 400px;
+            width: 100%;
+        }
+        .login-container h1 {
+            color: #004d40;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .login-container .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        .login-form .form-group {
+            margin-bottom: 20px;
+        }
+        .login-form label {
+            display: block;
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .login-form input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        .login-form input:focus {
+            outline: none;
+            border-color: #004d40;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: #004d40;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .login-btn:hover {
+            background: #00332a;
+        }
+        .login-error {
+            background: #ff4444;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            text-align: center;
+            display: none;
+        }
+        .login-error.show {
+            display: block;
+            animation: shake 0.5s;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        
+        /* Estilos de la Calculadora */
+        .app-container {
+            display: none;
+            width: 100%;
+            max-width: 1000px;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .app-container.show {
+            display: block;
+        }
+        .header {
+            margin-bottom: 20px;
+        }
+        .logout-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #ddd;
+            text-align: center;
+        }
+        .logout-btn {
+            padding: 12px 40px;
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+            transition: all 0.3s ease;
+        }
+        .logout-btn:hover {
+            background: linear-gradient(135deg, #c82333 0%, #a71d2a 100%);
+            box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+            transform: translateY(-2px);
+        }
+        .logout-btn:active {
+            transform: translateY(0);
+        }
+        h1 {
+            color: #004d40;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background: #004d40;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover {
+            background: #00332a;
+        }
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background: #004d40;
+            color: white;
+            border-radius: 10px;
+            display: none;
+        }
+        .result.show {
+            display: block;
+        }
+        .result h2 {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        table {
+            width: 100%;
+            background: white;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        th {
+            background: #00332a;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            border-right: 1px solid #004d40;
+        }
+        th:last-child {
+            border-right: none;
+        }
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #eee;
+            color: #333;
+            background: white;
+        }
+        tbody tr:nth-child(even) td {
+            background: #f9f9f9;
+        }
+        .table-container {
+            max-height: 400px;
+            overflow-y: auto;
+            border-radius: 5px;
+            position: relative;
+            border: 1px solid #ddd;
+        }
+        .table-container table {
+            margin-top: 0;
+        }
+        .table-container thead th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        }
+        .error {
+            background: #ff4444;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            display: none;
+        }
+        .error.show {
+            display: block;
+        }
+        .export-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .export-btn {
+            flex: 1;
+            padding: 12px;
+            background: white;
+            color: #004d40;
+            border: 2px solid white;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .export-btn:hover {
+            background: rgba(255,255,255,0.9);
+            transform: translateY(-2px);
+        }
+        .export-btn:active {
+            transform: translateY(0);
+        }
+        @media (max-width: 768px) {
+            .stats {
+                grid-template-columns: 1fr 1fr;
+            }
+            .row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Pantalla de Login -->
+    <div class="login-container" id="loginContainer">
+        <h1>🔐 Acceso Restringido</h1>
+        <p class="subtitle">Calculadora de Honorarios Profesionales</p>
+        
+        <form class="login-form" id="loginForm">
+            <div class="form-group">
+                <label>Usuario</label>
+                <input type="text" id="username" placeholder="Ingrese su usuario" required autocomplete="username">
+            </div>
+            <div class="form-group">
+                <label>Contraseña</label>
+                <input type="password" id="password" placeholder="Ingrese su contraseña" required autocomplete="current-password">
+            </div>
+            <button type="submit" class="login-btn">Iniciar Sesión</button>
+            <div class="login-error" id="loginError">Usuario o contraseña incorrectos</div>
+        </form>
+    </div>
+
+    <!-- Aplicación Principal (Calculadora) -->
+    <div class="app-container" id="appContainer">
+        <div class="header">
+            <h1>Calculadora de Honorarios Profesionales</h1>
+            <p class="subtitle">Tasas del Banco de Corrientes - Promedios Mensuales (Tasa Activa)</p>
+        </div>
+        
+        <form id="form">
+            <div class="form-group">
+                <label>Capital Inicial ($)</label>
+                <input type="number" id="capital" step="0.01" placeholder="100.00" required>
+            </div>
+            
+            <div class="row">
+                <div class="form-group">
+                    <label>Mes de Inicio</label>
+                    <select id="mesInicio" required>
+                        <option value="">Seleccionar...</option>
+                        <option value="1">Enero</option>
+                        <option value="2">Febrero</option>
+                        <option value="3">Marzo</option>
+                        <option value="4">Abril</option>
+                        <option value="5">Mayo</option>
+                        <option value="6">Junio</option>
+                        <option value="7">Julio</option>
+                        <option value="8">Agosto</option>
+                        <option value="9">Septiembre</option>
+                        <option value="10">Octubre</option>
+                        <option value="11">Noviembre</option>
+                        <option value="12">Diciembre</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Año de Inicio</label>
+                    <input type="number" id="anioInicio" min="1991" max="2025" placeholder="1991" required>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="form-group">
+                    <label>Mes Final</label>
+                    <select id="mesFin" required>
+                        <option value="">Seleccionar...</option>
+                        <option value="1">Enero</option>
+                        <option value="2">Febrero</option>
+                        <option value="3">Marzo</option>
+                        <option value="4">Abril</option>
+                        <option value="5">Mayo</option>
+                        <option value="6">Junio</option>
+                        <option value="7">Julio</option>
+                        <option value="8">Agosto</option>
+                        <option value="9">Septiembre</option>
+                        <option value="10">Octubre</option>
+                        <option value="11">Noviembre</option>
+                        <option value="12">Diciembre</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Año Final</label>
+                    <input type="number" id="anioFin" min="1991" max="2025" placeholder="2025" required>
+                </div>
+            </div>
+            
+            <button type="submit">Calcular Honorarios</button>
+        </form>
+        
+        <div class="error" id="error"></div>
+        
+        <div class="result" id="result">
+            <h2 id="totalCapital">$0.00</h2>
+            
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-label">Capital Inicial</div>
+                    <div class="stat-value" id="statCapitalInicial">$0.00</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Intereses</div>
+                    <div class="stat-value" id="statIntereses">$0.00</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Meses</div>
+                    <div class="stat-value" id="statMeses">0</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Tasa Promedio</div>
+                    <div class="stat-value" id="statTasaPromedio">0.00%</div>
+                </div>
+            </div>
+            
+            <div class="export-buttons">
+                <button type="button" class="export-btn" onclick="exportarExcel()">📊 Exportar a Excel</button>
+                <button type="button" class="export-btn" onclick="exportarPDF()">📄 Exportar a PDF</button>
+                <button type="button" class="export-btn" onclick="nuevoCalculo()">🔄 Nuevo Cálculo</button>
+            </div>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Período</th>
+                            <th>Tasa (%)</th>
+                            <th>Capital Inicial</th>
+                            <th>Interés</th>
+                            <th>Capital Final</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Sección de Cerrar Sesión -->
+        <div class="logout-section">
+            <button class="logout-btn" onclick="cerrarSesion()">
+                <span style="margin-right: 8px;">🚪</span> Cerrar Sesión
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ==================== SISTEMA DE AUTENTICACIÓN ====================
+        
+        const usuarios = {
+            'admin': 'admin123',
+            'usuario': 'pass123',
+            'estudio': 'juridico2024'
+        };
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const sesionActiva = sessionStorage.getItem('sesionActiva');
+            if (sesionActiva === 'true') {
+                mostrarApp();
+            }
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('loginError');
+            
+            if (usuarios[username] && usuarios[username] === password) {
+                sessionStorage.setItem('sesionActiva', 'true');
+                sessionStorage.setItem('usuario', username);
+                mostrarApp();
+            } else {
+                errorDiv.classList.add('show');
+                setTimeout(() => {
+                    errorDiv.classList.remove('show');
+                }, 3000);
+                document.getElementById('password').value = '';
+            }
+        });
+
+        function mostrarApp() {
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('appContainer').classList.add('show');
+            document.body.style.background = '#f5f5f5';
+        }
+
+        function cerrarSesion() {
+            if (confirm('¿Está seguro que desea cerrar sesión?')) {
+                sessionStorage.removeItem('sesionActiva');
+                sessionStorage.removeItem('usuario');
+                document.getElementById('appContainer').classList.remove('show');
+                document.getElementById('loginContainer').style.display = 'block';
+                document.body.style.background = 'linear-gradient(135deg, #004d40 0%, #00695c 100%)';
+                document.getElementById('loginForm').reset();
+                document.getElementById('form').reset();
+                document.getElementById('result').classList.remove('show');
+            }
+        }
+
+        // ==================== CÓDIGO DE LA CALCULADORA ====================
+        
+        // Tasas del Banco de Corrientes actualizadas al 08/05/2025
+        const tasas = {
+            // 1991
+            "1991-1": 0, "1991-2": 0, "1991-3": 0, "1991-4": 5.99, "1991-5": 5.44, "1991-6": 5.50, 
+            "1991-7": 5.69, "1991-8": 5.25, "1991-9": 4.87, "1991-10": 3.89, "1991-11": 3.75, "1991-12": 3.88,
+            // 1992
+            "1992-1": 3.88, "1992-2": 3.62, "1992-3": 3.88, "1992-4": 3.75, "1992-5": 3.88, "1992-6": 3.75,
+            "1992-7": 3.88, "1992-8": 3.88, "1992-9": 3.88, "1992-10": 3.75, "1992-11": 3.80, "1992-12": 4.60,
+            // 1993
+            "1993-1": 4.69, "1993-2": 3.62, "1993-3": 3.74, "1993-4": 3.70, "1993-5": 3.70, "1993-6": 3.70,
+            "1993-7": 3.70, "1993-8": 3.70, "1993-9": 3.70, "1993-10": 3.70, "1993-11": 3.70, "1993-12": 3.83,
+            // 1994
+            "1994-1": 3.83, "1994-2": 3.45, "1994-3": 3.80, "1994-4": 3.50, "1994-5": 3.50, "1994-6": 3.50,
+            "1994-7": 3.50, "1994-8": 3.50, "1994-9": 3.50, "1994-10": 3.50, "1994-11": 3.50, "1994-12": 3.50,
+            // 1995
+            "1995-1": 3.50, "1995-2": 3.26, "1995-3": 4.00, "1995-4": 4.00, "1995-5": 4.00, "1995-6": 4.00,
+            "1995-7": 4.00, "1995-8": 4.00, "1995-9": 4.00, "1995-10": 4.00, "1995-11": 4.00, "1995-12": 4.00,
+            // 1996
+            "1996-1": 4.00, "1996-2": 4.00, "1996-3": 4.00, "1996-4": 4.00, "1996-5": 4.00, "1996-6": 4.00,
+            "1996-7": 4.00, "1996-8": 4.00, "1996-9": 3.52, "1996-10": 3.50, "1996-11": 3.50, "1996-12": 3.50,
+            // 1997
+            "1997-1": 3.50, "1997-2": 3.50, "1997-3": 3.50, "1997-4": 3.50, "1997-5": 3.50, "1997-6": 3.50,
+            "1997-7": 3.50, "1997-8": 3.50, "1997-9": 3.50, "1997-10": 3.50, "1997-11": 3.50, "1997-12": 3.50,
+            // 1998
+            "1998-1": 3.50, "1998-2": 3.50, "1998-3": 3.50, "1998-4": 3.50, "1998-5": 3.50, "1998-6": 3.50,
+            "1998-7": 3.50, "1998-8": 3.50, "1998-9": 3.50, "1998-10": 3.50, "1998-11": 3.50, "1998-12": 3.50,
+            // 1999
+            "1999-1": 3.00, "1999-2": 3.00, "1999-3": 3.00, "1999-4": 3.00, "1999-5": 3.00, "1999-6": 3.00,
+            "1999-7": 3.00, "1999-8": 3.00, "1999-9": 3.00, "1999-10": 3.00, "1999-11": 3.00, "1999-12": 3.00,
+            // 2000
+            "2000-1": 3.00, "2000-2": 3.00, "2000-3": 3.00, "2000-4": 3.00, "2000-5": 3.00, "2000-6": 3.00,
+            "2000-7": 3.00, "2000-8": 3.00, "2000-9": 3.00, "2000-10": 3.00, "2000-11": 3.00, "2000-12": 3.00,
+            // 2001
+            "2001-1": 3.00, "2001-2": 3.00, "2001-3": 3.00, "2001-4": 3.00, "2001-5": 3.00, "2001-6": 3.00,
+            "2001-7": 3.00, "2001-8": 3.00, "2001-9": 3.00, "2001-10": 3.00, "2001-11": 3.00, "2001-12": 3.00,
+            // 2002
+            "2002-1": 3.00, "2002-2": 3.00, "2002-3": 3.00, "2002-4": 3.00, "2002-5": 3.00, "2002-6": 7.73,
+            "2002-7": 8.66, "2002-8": 7.19, "2002-9": 5.49, "2002-10": 5.86, "2002-11": 5.05, "2002-12": 4.68,
+            // 2003
+            "2003-1": 4.65, "2003-2": 4.63, "2003-3": 4.68, "2003-4": 4.82, "2003-5": 4.53, "2003-6": 4.30,
+            "2003-7": 4.01, "2003-8": 3.88, "2003-9": 3.73, "2003-10": 3.62, "2003-11": 3.60, "2003-12": 3.58,
+            // 2004
+            "2004-1": 2.56, "2004-2": 2.51, "2004-3": 2.46, "2004-4": 2.45, "2004-5": 2.57, "2004-6": 2.67,
+            "2004-7": 2.63, "2004-8": 2.49, "2004-9": 2.51, "2004-10": 2.52, "2004-11": 2.19, "2004-12": 2.23,
+            // 2005
+            "2005-1": 2.49, "2005-2": 2.42, "2005-3": 2.42, "2005-4": 2.43, "2005-5": 2.50, "2005-6": 2.56,
+            "2005-7": 2.62, "2005-8": 2.45, "2005-9": 2.44, "2005-10": 2.45, "2005-11": 2.50, "2005-12": 2.56,
+            // 2006
+            "2006-1": 2.63, "2006-2": 2.58, "2006-3": 2.67, "2006-4": 2.13, "2006-5": 2.12, "2006-6": 2.12,
+            "2006-7": 2.14, "2006-8": 2.15, "2006-9": 2.17, "2006-10": 2.14, "2006-11": 2.15, "2006-12": 2.21,
+            // 2007
+            "2007-1": 2.18, "2007-2": 2.15, "2007-3": 2.17, "2007-4": 2.14, "2007-5": 2.13, "2007-6": 2.15,
+            "2007-7": 2.16, "2007-8": 2.27, "2007-9": 2.38, "2007-10": 2.37, "2007-11": 2.21, "2007-12": 2.29,
+            // 2008
+            "2008-1": 2.15, "2008-2": 2.04, "2008-3": 2.06, "2008-4": 2.23, "2008-5": 2.40, "2008-6": 2.70,
+            "2008-7": 2.58, "2008-8": 2.45, "2008-9": 2.63, "2008-10": 2.70, "2008-11": 2.88, "2008-12": 3.24,
+            // 2009
+            "2009-1": 3.16, "2009-2": 3.19, "2009-3": 3.78, "2009-4": 3.78, "2009-5": 3.78, "2009-6": 3.62,
+            "2009-7": 3.29, "2009-8": 3.29, "2009-9": 3.29, "2009-10": 3.29, "2009-11": 3.29, "2009-12": 3.29,
+            // 2010
+            "2010-1": 3.29, "2010-2": 3.29, "2010-3": 3.29, "2010-4": 3.29, "2010-5": 3.29, "2010-6": 2.14,
+            "2010-7": 2.14, "2010-8": 2.14, "2010-9": 2.14, "2010-10": 2.22, "2010-11": 2.22, "2010-12": 2.30,
+            // 2011
+            "2011-1": 2.30, "2011-2": 2.30, "2011-3": 2.30, "2011-4": 2.30, "2011-5": 2.30, "2011-6": 2.30,
+            "2011-7": 2.30, "2011-8": 2.30, "2011-9": 2.30, "2011-10": 2.47, "2011-11": 2.63, "2011-12": 2.63,
+            // 2012
+            "2012-1": 2.63, "2012-2": 2.47, "2012-3": 2.47, "2012-4": 2.47, "2012-5": 2.47, "2012-6": 2.47,
+            "2012-7": 2.47, "2012-8": 2.47, "2012-9": 2.47, "2012-10": 2.47, "2012-11": 2.47, "2012-12": 2.47,
+            // 2013
+            "2013-1": 2.47, "2013-2": 2.47, "2013-3": 2.47, "2013-4": 2.47, "2013-5": 2.14, "2013-6": 2.47,
+            "2013-7": 2.47, "2013-8": 2.47, "2013-9": 2.47, "2013-10": 2.55, "2013-11": 2.63, "2013-12": 2.79,
+            // 2014
+            "2014-1": 3.78, "2014-2": 3.53, "2014-3": 3.53, "2014-4": 3.29, "2014-5": 3.29, "2014-6": 3.29,
+            "2014-7": 3.16, "2014-8": 3.16, "2014-9": 3.16, "2014-10": 3.25, "2014-11": 3.19, "2014-12": 3.19,
+            // 2015
+            "2015-1": 3.19, "2015-2": 3.19, "2015-3": 3.16, "2015-4": 3.12, "2015-5": 3.08, "2015-6": 3.08,
+            "2015-7": 3.08, "2015-8": 3.08, "2015-9": 3.08, "2015-10": 3.08, "2015-11": 3.08, "2015-12": 3.29,
+            // 2016
+            "2016-1": 3.29, "2016-2": 3.29, "2016-3": 3.29, "2016-4": 3.29, "2016-5": 3.29, "2016-6": 3.29,
+            "2016-7": 3.29, "2016-8": 2.88, "2016-9": 3.29, "2016-10": 3.29, "2016-11": 3.29, "2016-12": 3.29,
+            // 2017
+            "2017-1": 3.29, "2017-2": 3.29, "2017-3": 2.96, "2017-4": 2.96, "2017-5": 2.96, "2017-6": 2.96,
+            "2017-7": 2.96, "2017-8": 2.96, "2017-9": 2.96, "2017-10": 2.96, "2017-11": 2.96, "2017-12": 2.96,
+            // 2018
+            "2018-1": 2.96, "2018-2": 2.96, "2018-3": 2.96, "2018-4": 2.96, "2018-5": 2.96, "2018-6": 3.45,
+            "2018-7": 3.62, "2018-8": 3.62, "2018-9": 4.44, "2018-10": 4.77, "2018-11": 4.93, "2018-12": 4.93,
+            // 2019
+            "2019-1": 4.93, "2019-2": 4.68, "2019-3": 4.68, "2019-4": 5.10, "2019-5": 5.10, "2019-6": 5.10,
+            "2019-7": 5.10, "2019-8": 5.92, "2019-9": 5.51, "2019-10": 5.51, "2019-11": 5.34, "2019-12": 5.18,
+            // 2020
+            "2020-1": 4.93, "2020-2": 4.93, "2020-3": 4.52, "2020-4": 4.11, "2020-5": 4.52, "2020-6": 4.52,
+            "2020-7": 4.52, "2020-8": 4.52, "2020-9": 4.52, "2020-10": 4.52, "2020-11": 4.52, "2020-12": 4.52,
+            // 2021
+            "2021-1": 4.52, "2021-2": 4.36, "2021-3": 4.36, "2021-4": 4.36, "2021-5": 4.36, "2021-6": 4.36,
+            "2021-7": 4.36, "2021-8": 4.36, "2021-9": 4.36, "2021-10": 4.36, "2021-11": 4.36, "2021-12": 4.36,
+            // 2022
+            "2022-1": 4.36, "2022-2": 4.36, "2022-3": 4.60, "2022-4": 4.85, "2022-5": 5.01, "2022-6": 5.42,
+            "2022-7": 5.42, "2022-8": 6.49, "2022-9": 6.49, "2022-10": 6.49, "2022-11": 6.49, "2022-12": 6.49,
+            // 2023
+            "2023-1": 6.49, "2023-2": 6.49, "2023-3": 7.68, "2023-4": 8.75, "2023-5": 9.25, "2023-6": 9.25,
+            "2023-7": 9.25, "2023-8": 10.97, "2023-9": 10.97, "2023-10": 12.21, "2023-11": 12.21, "2023-12": 16.15,
+            // 2024
+            "2024-1": 12.86, "2024-2": 12.86, "2024-3": 9.86, "2024-4": 9.04, "2024-5": 6.08, "2024-6": 6.90,
+            "2024-7": 7.23, "2024-8": 7.32, "2024-9": 7.48, "2024-10": 6.66, "2024-11": 6.41, "2024-12": 6.41,
+            // 2025
+            "2025-1": 6.41, "2025-2": 6.41, "2025-3": 6.41, "2025-4": 6.74
+        };
+
+        let ultimoCalculo = null;
+
+        document.getElementById('form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            calcular();
+        });
+
+        function calcular() {
+            const capital = parseFloat(document.getElementById('capital').value);
+            const mesInicio = parseInt(document.getElementById('mesInicio').value);
+            const anioInicio = parseInt(document.getElementById('anioInicio').value);
+            const mesFin = parseInt(document.getElementById('mesFin').value);
+            const anioFin = parseInt(document.getElementById('anioFin').value);
+
+            const errorDiv = document.getElementById('error');
+            errorDiv.classList.remove('show');
+
+            const fechaInicio = new Date(anioInicio, mesInicio - 1);
+            const fechaFin = new Date(anioFin, mesFin - 1);
+
+            if (fechaInicio > fechaFin) {
+                errorDiv.textContent = 'La fecha de inicio debe ser anterior a la fecha final';
+                errorDiv.classList.add('show');
+                return;
+            }
+
+            let capitalActual = capital;
+            let desglose = [];
+            let sumaIntereses = 0;
+            let sumaTasas = 0;
+            let mesesCalculados = 0;
+
+            let fecha = new Date(fechaInicio);
+            
+            while (fecha <= fechaFin) {
+                const mes = fecha.getMonth() + 1;
+                const anio = fecha.getFullYear();
+                const clave = `${anio}-${mes}`;
+                
+                // Si la fecha es futura a los datos cargados, usamos 0
+                const tasa = tasas[clave] !== undefined ? tasas[clave] : 0;
+                
+                const interes = capitalActual * (tasa / 100);
+                const capitalFinal = capitalActual + interes;
+                
+                desglose.push({
+                    periodo: `${mes.toString().padStart(2, '0')}/${anio}`,
+                    tasa: tasa,
+                    capitalInicial: capitalActual,
+                    interes: interes,
+                    capitalFinal: capitalFinal
+                });
+                
+                sumaIntereses += interes;
+                sumaTasas += tasa;
+                mesesCalculados++;
+                capitalActual = capitalFinal;
+                
+                fecha.setMonth(fecha.getMonth() + 1);
+            }
+
+            const tasaPromedio = mesesCalculados > 0 ? sumaTasas / mesesCalculados : 0;
+
+            ultimoCalculo = {
+                capitalInicial: capital,
+                capitalFinal: capitalActual,
+                intereses: sumaIntereses,
+                meses: mesesCalculados,
+                tasaPromedio: tasaPromedio,
+                desglose: desglose
+            };
+
+            mostrarResultados();
+        }
+
+        function mostrarResultados() {
+            document.getElementById('totalCapital').textContent = `$${ultimoCalculo.capitalFinal.toFixed(2)}`;
+            document.getElementById('statCapitalInicial').textContent = `$${ultimoCalculo.capitalInicial.toFixed(2)}`;
+            document.getElementById('statIntereses').textContent = `$${ultimoCalculo.intereses.toFixed(2)}`;
+            document.getElementById('statMeses').textContent = ultimoCalculo.meses;
+            document.getElementById('statTasaPromedio').textContent = `${ultimoCalculo.tasaPromedio.toFixed(2)}%`;
+
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            
+            ultimoCalculo.desglose.forEach(fila => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${fila.periodo}</td>
+                    <td>${fila.tasa.toFixed(2)}%</td>
+                    <td>$${fila.capitalInicial.toFixed(2)}</td>
+                    <td>$${fila.interes.toFixed(2)}</td>
+                    <td>$${fila.capitalFinal.toFixed(2)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('result').classList.add('show');
+            document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function exportarExcel() {
+            if (!ultimoCalculo) {
+                alert('Primero debe realizar un cálculo');
+                return;
+            }
+
+            let html = `
+                <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">
+                <head>
+                    <meta charset="UTF-8">
+                    <style>
+                        table { border-collapse: collapse; width: 100%; }
+                        th, td { border: 1px solid black; padding: 8px; text-align: left; }
+                        th { background-color: #004d40; color: white; font-weight: bold; }
+                        .number { text-align: right; }
+                        h1 { color: #004d40; }
+                    </style>
+                </head>
+                <body>
+                    <h1>Calculadora de Honorarios Profesionales</h1>
+                    <p>Tasas del Banco de Corrientes - Promedios Mensuales</p>
+                    <br>
+                    <h2>Resumen</h2>
+                    <table>
+                        <tr>
+                            <th>Capital Inicial</th>
+                            <td class="number">$${ultimoCalculo.capitalInicial.toFixed(2)}</td>
+                        </tr>
+                        <tr>
+                            <th>Capital Final</th>
+                            <td class="number">$${ultimoCalculo.capitalFinal.toFixed(2)}</td>
+                        </tr>
+                        <tr>
+                            <th>Intereses Generados</th>
+                            <td class="number">$${ultimoCalculo.intereses.toFixed(2)}</td>
+                        </tr>
+                        <tr>
+                            <th>Meses Transcurridos</th>
+                            <td class="number">${ultimoCalculo.meses}</td>
+                        </tr>
+                        <tr>
+                            <th>Tasa Promedio</th>
+                            <td class="number">${ultimoCalculo.tasaPromedio.toFixed(2)}%</td>
+                        </tr>
+                    </table>
+                    <br><br>
+                    <h2>Desglose Mensual</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Período</th>
+                                <th>Tasa (%)</th>
+                                <th>Capital Inicial</th>
+                                <th>Interés</th>
+                                <th>Capital Final</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            ultimoCalculo.desglose.forEach(fila => {
+                html += `
+                    <tr>
+                        <td>${fila.periodo}</td>
+                        <td class="number">${fila.tasa.toFixed(2)}</td>
+                        <td class="number">${fila.capitalInicial.toFixed(2)}</td>
+                        <td class="number">${fila.interes.toFixed(2)}</td>
+                        <td class="number">${fila.capitalFinal.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                        </tbody>
+                    </table>
+                    <br>
+                    <div style="font-size: 10px; color: #666;">
+                        <strong>Nota:</strong> Tasas de "Promedios Mensuales (Tasa Activa)" del Banco de Corrientes.
+                    </div>
+                </body>
+                </html>
+            `;
+
+            const blob = new Blob([html], { type: 'application/vnd.ms-excel' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'honorarios_profesionales.xls');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function exportarPDF() {
+            if (!ultimoCalculo) {
+                alert('Primero debe realizar un cálculo');
+                return;
+            }
+
+            const printWindow = window.open('', '_blank');
+            
+            let html = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Reporte de Honorarios Profesionales</title>
+                    <style>
+                        body {
+                            font-family: Arial, sans-serif;
+                            padding: 40px;
+                            max-width: 900px;
+                            margin: 0 auto;
+                        }
+                        h1 {
+                            color: #004d40;
+                            border-bottom: 3px solid #004d40;
+                            padding-bottom: 10px;
+                        }
+                        h2 {
+                            color: #004d40;
+                            margin-top: 30px;
+                        }
+                        .resumen {
+                            background: #f5f5f5;
+                            padding: 20px;
+                            border-radius: 10px;
+                            margin: 20px 0;
+                        }
+                        .resumen-grid {
+                            display: grid;
+                            grid-template-columns: 1fr 1fr;
+                            gap: 15px;
+                        }
+                        .resumen-item {
+                            padding: 10px;
+                        }
+                        .resumen-label {
+                            font-weight: bold;
+                            color: #666;
+                            font-size: 14px;
+                        }
+                        .resumen-value {
+                            font-size: 24px;
+                            color: #004d40;
+                            font-weight: bold;
+                            margin-top: 5px;
+                        }
+                        table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-top: 20px;
+                            font-size: 12px;
+                        }
+                        th {
+                            background: #004d40;
+                            color: white;
+                            padding: 10px;
+                            text-align: left;
+                        }
+                        td {
+                            padding: 8px 10px;
+                            border-bottom: 1px solid #ddd;
+                        }
+                        tr:nth-child(even) {
+                            background: #f9f9f9;
+                        }
+                        .footer {
+                            margin-top: 40px;
+                            padding-top: 20px;
+                            border-top: 2px solid #004d40;
+                            font-size: 12px;
+                            color: #666;
+                        }
+                        @media print {
+                            body { padding: 20px; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <h1>Calculadora de Honorarios Profesionales</h1>
+                    <p style="color: #666;">Tasas del Banco de Corrientes - Promedios Mensuales (Tasa Activa)</p>
+                    
+                    <div class="resumen">
+                        <h2 style="margin-top: 0;">Resumen del Cálculo</h2>
+                        <div class="resumen-grid">
+                            <div class="resumen-item">
+                                <div class="resumen-label">Capital Inicial</div>
+                                <div class="resumen-value">$${ultimoCalculo.capitalInicial.toFixed(2)}</div>
+                            </div>
+                            <div class="resumen-item">
+                                <div class="resumen-label">Capital Final</div>
+                                <div class="resumen-value">$${ultimoCalculo.capitalFinal.toFixed(2)}</div>
+                            </div>
+                            <div class="resumen-item">
+                                <div class="resumen-label">Intereses Generados</div>
+                                <div class="resumen-value">$${ultimoCalculo.intereses.toFixed(2)}</div>
+                            </div>
+                            <div class="resumen-item">
+                                <div class="resumen-label">Meses Transcurridos</div>
+                                <div class="resumen-value">${ultimoCalculo.meses}</div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 15px;">
+                            <div class="resumen-label">Tasa Promedio</div>
+                            <div class="resumen-value">${ultimoCalculo.tasaPromedio.toFixed(2)}%</div>
+                        </div>
+                    </div>
+                    
+                    <h2>Desglose Mensual</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Período</th>
+                                <th>Tasa (%)</th>
+                                <th>Capital Inicial</th>
+                                <th>Interés</th>
+                                <th>Capital Final</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            ultimoCalculo.desglose.forEach(fila => {
+                html += `
+                    <tr>
+                        <td>${fila.periodo}</td>
+                        <td>${fila.tasa.toFixed(2)}%</td>
+                        <td>$${fila.capitalInicial.toFixed(2)}</td>
+                        <td>$${fila.interes.toFixed(2)}</td>
+                        <td>$${fila.capitalFinal.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                        </tbody>
+                    </table>
+                    
+                    <div class="footer">
+                        <p><strong>Nota:</strong> Tasas de "Promedios Mensuales (Tasa Activa)" del Banco de Corrientes publicadas por el Superior Tribunal de Justicia de la Provincia de Corrientes.</p>
+                        <p>Fecha de generación: ${new Date().toLocaleDateString('es-AR')}</p>
+                    </div>
+                </body>
+                </html>
+            `;
+            
+            printWindow.document.write(html);
+            printWindow.document.close();
+            
+            printWindow.onload = function() {
+                printWindow.print();
+            };
+        }
+
+        function nuevoCalculo() {
+            document.getElementById('form').reset();
+            document.getElementById('result').classList.remove('show');
+            document.getElementById('error').classList.remove('show');
+            ultimoCalculo = null;
+            document.querySelector('.app-container').scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('capital').focus();
+        }
+    </script>
+</body>
+</html>
